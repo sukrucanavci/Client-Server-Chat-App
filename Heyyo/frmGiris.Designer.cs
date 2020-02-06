@@ -87,7 +87,7 @@
             this.txtKullaniciAdi.Name = "txtKullaniciAdi";
             this.txtKullaniciAdi.Size = new System.Drawing.Size(312, 22);
             this.txtKullaniciAdi.TabIndex = 2;
-            this.txtKullaniciAdi.Text = "Şükrü";
+            this.txtKullaniciAdi.Text = "sukru";
             this.txtKullaniciAdi.TextChanged += new System.EventHandler(this.txtKullaniciAdi_TextChanged);
             // 
             // btnBaglan

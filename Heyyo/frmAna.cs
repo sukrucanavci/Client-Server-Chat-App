@@ -18,7 +18,7 @@ namespace Heyyo
 
         TabPage tp;
         RichTextBox rtx;
-        public Socket soket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        public Socket soket;
         public string ip;
         public int port;
         public string kullaniciAdi;
@@ -30,6 +30,8 @@ namespace Heyyo
             lstKullanicilar.Sorted = true;
             tvwOdalar.ImageList = imgOdalar;
             tabAna.ImageList = imgSayilar;
+
+            
         }
 
         private void frmAna_Shown(object sender, EventArgs e)
@@ -43,23 +45,14 @@ namespace Heyyo
             {
                 BaglantiyiKes();
             }
+            soket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             soket.Connect(fGiris.lep);
             baglantiVar = true;
             kullaniciAdi = fGiris.kullaniciAdi;
             mesajYolla("nickname:" + kullaniciAdi);
 
-            tsslSunucu.Text = "Bağlandıldı -> " + soket.RemoteEndPoint.ToString();
-
-            tMesajAlma = new Thread(new ThreadStart(MesajAlma));
+            tMesajAlma = new Thread(MesajAlma);
             tMesajAlma.Start();
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
         }
 
         public void BaglantiyiKes()
@@ -68,14 +61,8 @@ namespace Heyyo
             {
                 rtxMesajlar.AppendText(soket.RemoteEndPoint + " bağlantısı kapatıldı.");
                 baglantiVar = false;
-                if (tMesajAlma != null)
-                {
-                    if (tMesajAlma.ThreadState == ThreadState.Running)
-                    {
-                        tMesajAlma.Abort();
-                    }
-                }
                 soket.Close();
+                tMesajAlma.Abort();
             }
             else
             {
@@ -163,9 +150,14 @@ namespace Heyyo
                     }
                 }
             }
+            catch (SocketException ex)
+            {
+                MessageBox.Show("SocketException: " + ex.Message);
+                tMesajAlma.Abort();
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("burası tekrar bağlanmayı dene olarak düzeltilecek::: " + ex.Message);
+                MessageBox.Show("Exception:" + ex.Message);
             }
         }
 
@@ -181,7 +173,15 @@ namespace Heyyo
             kopyaBytes.AddRange(byteVeri);
             byteVeri = kopyaBytes.ToArray();
 
-            soket.Send(byteVeri, byteVeri.Length, SocketFlags.None);
+            if (soket.Connected)
+            {
+                soket.Send(byteVeri, byteVeri.Length, SocketFlags.None);
+            }
+            else
+            {
+                MessageBox.Show("Sunucuya bağlantın yok kardeşim");
+            }
+            
         }
 
         private void GenelMesajAlindi(string mesaj)
@@ -270,12 +270,12 @@ namespace Heyyo
 
                 if (tabAna.SelectedIndex == 0)
                 {
-                    mesaj = "gMesaj:" + kullaniciAdi + ":" + rtxMesajim.Text;
+                    mesaj = "gMesaj:" + rtxMesajim.Text;
                 }
                 else
                 {
                     string alici = tabAna.SelectedTab.Text;
-                    mesaj = "oMesaj:" + kullaniciAdi + ":" + alici + ":" + rtxMesajim.Text;
+                    mesaj = "oMesaj:" + alici + ":" + rtxMesajim.Text;
                 }
                 mesaj = mesaj.Substring(0, mesaj.Length - 1); //Son karakteri yani ENTER'ı siliyoruz
                 mesajYolla(mesaj);

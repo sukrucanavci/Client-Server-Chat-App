@@ -17,10 +17,10 @@ namespace Heyyo_Sunucu
         public Istemci(Socket soket)
         {
             this.soket = soket;
-            MesajAlma(soket);
+            MesajAlma();
         }
         
-        void MesajAlma(Socket soket)
+        void MesajAlma()
         {
 
             try
@@ -28,23 +28,40 @@ namespace Heyyo_Sunucu
                 while (true)
                 {
                     byte[] byteMesajUzunlugu = new byte[2];
-                    soket.Receive(byteMesajUzunlugu, 2, SocketFlags.None);
+                    int a1 = soket.Receive(byteMesajUzunlugu, 0, 2, SocketFlags.None);
 
-                    byte[] alinanbytes = new byte[byteToShort(byteMesajUzunlugu)];
-                    soket.Receive(alinanbytes, alinanbytes.Length, SocketFlags.None);
+                    short gelecekMesajinUzunlugu = byteToShort(byteMesajUzunlugu);
+                    if (gelecekMesajinUzunlugu == 0) { throw new SocketException(); }
 
-                    string mesaj = byteToString(alinanbytes);
-                    Console.WriteLine(soket.RemoteEndPoint.ToString() + " -> " + mesaj);
 
-                    string[] par = mesaj.Split(':');
+                    byte[] alinanbytes = new byte[gelecekMesajinUzunlugu];
+                    int offset = 0;
 
-                    if (mesaj.StartsWith("gMesaj"))
+                    while (offset < alinanbytes.Length)
                     {
-                        tumKullanicilaraMesajGonder(mesaj, false);
+                        int received = soket.Receive(alinanbytes, offset, alinanbytes.Length - offset, 0);
+                        offset += received;
+
+                        if (received == 0)
+                        {
+                            throw new SocketException();
+                        }
                     }
-                    else if (mesaj.StartsWith("oMesaj"))
+
+                    string alinanString = byteToString(alinanbytes);
+                    Console.WriteLine("Alındı -> " + soket.RemoteEndPoint.ToString() + " -> " + alinanString);
+
+                    string[] par = alinanString.Split(':');
+
+                    if (alinanString.StartsWith("gMesaj"))
                     {
-                        string alici = mesaj.Split(':')[2];
+                        string gonderilecekMesaj = alinanString.Substring(7);
+                        string gondereniEklenmisMesaj = par[0] + ":" + kullaniciAdi + ":" + gonderilecekMesaj;
+                        tumKullanicilaraMesajGonder(gondereniEklenmisMesaj, false);
+                    }
+                    else if (alinanString.StartsWith("oMesaj"))
+                    {
+                        string alici = par[1];
 
                         Socket aliciSoket = default;
                         foreach (var item in Sunucu.istemciListesi)
@@ -56,10 +73,14 @@ namespace Heyyo_Sunucu
                             }
                         }
 
-                        mesajGonder(aliciSoket, mesaj);
-                        mesajGonder(soket, mesaj);
+                        int mesajBaslangicIndexi = par[0].Length + par[1].Length + 2;
+                        string gonderilecekMesaj = alinanString.Substring(mesajBaslangicIndexi);
+                        string gondereniEklenmisMesaj = par[0] + ":" + kullaniciAdi + ":" + par[1] + ":" + gonderilecekMesaj;
+
+                        mesajGonder(aliciSoket, gondereniEklenmisMesaj);
+                        mesajGonder(soket, gondereniEklenmisMesaj);
                     }
-                    else if (mesaj.StartsWith("nickname"))
+                    else if (alinanString.StartsWith("nickname"))
                     {
                         kullaniciAdi = par[1];
                         if (Sunucu.istemciListesi.Keys.Contains(kullaniciAdi))
@@ -80,15 +101,15 @@ namespace Heyyo_Sunucu
                         }
 
                     }
-                    else if (mesaj.StartsWith("odaEkle"))
+                    else if (alinanString.StartsWith("odaEkle"))
                     {
-                        if (!Sunucu.odaListesi.ContainsKey(mesaj.Split(':')[1]))
+                        if (!Sunucu.odaListesi.ContainsKey(par[1]))
                         {
-                            tOdaEkle = new Thread(() => oda = new Oda(this, mesaj));
+                            tOdaEkle = new Thread(() => oda = new Oda(this, alinanString));
                             tOdaEkle.Start();
                         }     
                     }
-                    else if (mesaj.StartsWith("odayaGiris"))
+                    else if (alinanString.StartsWith("odayaGiris"))
                     {
                         string odaAdi = par[1];
                         string odaSifresi = par[2];
@@ -113,21 +134,18 @@ namespace Heyyo_Sunucu
                             
                         }
                     }
-                    else if (mesaj.StartsWith("odadanCikis"))
+                    else if (alinanString.StartsWith("odadanCikis"))
                     {
 
                     }
                     else
                     {
-                        Console.WriteLine("HATALI MESAJ istemci.cs " + alinanbytes.Length + " " + byteToShort(byteMesajUzunlugu));
-
-                        soket.Send(stringToByte("sg"), 4, SocketFlags.None);
-                        //throw new Exception("123");
+                        Console.WriteLine("HATALI MESAJ: " + alinanString);
+                        Thread.Sleep(1000);
                     }
-
                 }
             }
-            catch (Exception ex)
+            catch (SocketException ex)
             {
                 
                 Sunucu.istemciListesi.Remove(kullaniciAdi);
@@ -135,8 +153,8 @@ namespace Heyyo_Sunucu
                 Console.WriteLine(kullaniciAdi + " çıkış yaptı.");
                 soket.Close();
                 Console.WriteLine(ex.Message);
+                //Thread.CurrentThread.Abort();
             }
-
         }
 
         private void kullanicilariGonder()

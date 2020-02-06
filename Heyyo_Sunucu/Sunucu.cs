@@ -30,6 +30,8 @@ namespace Heyyo_Sunucu
                         kullaniciEngelle(par[1]);
                         istemciListesi[par[1]].soket.Close();
                         break;
+                    case "istemci":
+
                     default:
                         break;
                 }
