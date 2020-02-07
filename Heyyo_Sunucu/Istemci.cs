@@ -13,7 +13,8 @@ namespace Heyyo_Sunucu
         public string kullaniciAdi;
         Thread tOdaEkle;
         public Oda bulunduguOda = null;
-         
+        byte sesDurumu; 
+
         public Istemci(Socket soket)
         {
             this.soket = soket;
@@ -30,7 +31,7 @@ namespace Heyyo_Sunucu
                     byte[] byteMesajUzunlugu = new byte[2];
                     int a1 = soket.Receive(byteMesajUzunlugu, 0, 2, SocketFlags.None);
 
-                    short gelecekMesajinUzunlugu = byteToShort(byteMesajUzunlugu);
+                    ushort gelecekMesajinUzunlugu = Sunucu.byteToUShort(byteMesajUzunlugu);
                     if (gelecekMesajinUzunlugu == 0) { throw new SocketException(); }
 
 
@@ -41,14 +42,13 @@ namespace Heyyo_Sunucu
                     {
                         int received = soket.Receive(alinanbytes, offset, alinanbytes.Length - offset, 0);
                         offset += received;
-
                         if (received == 0)
                         {
                             throw new SocketException();
                         }
                     }
 
-                    string alinanString = byteToString(alinanbytes);
+                    string alinanString = Sunucu.byteToString(alinanbytes);
                     Console.WriteLine("Alındı -> " + soket.RemoteEndPoint.ToString() + " -> " + alinanString);
 
                     string[] par = alinanString.Split(':');
@@ -57,7 +57,7 @@ namespace Heyyo_Sunucu
                     {
                         string gonderilecekMesaj = alinanString.Substring(7);
                         string gondereniEklenmisMesaj = par[0] + ":" + kullaniciAdi + ":" + gonderilecekMesaj;
-                        tumKullanicilaraMesajGonder(gondereniEklenmisMesaj, false);
+                        Sunucu.tumKullanicilaraMesajGonder(gondereniEklenmisMesaj);
                     }
                     else if (alinanString.StartsWith("oMesaj"))
                     {
@@ -91,8 +91,9 @@ namespace Heyyo_Sunucu
                         else if (!kullaniciAdi.Substring(0,3).Contains(" ") && kullaniciAdi.Length >= 3)
                         {
                             Sunucu.istemciListesi.Add(kullaniciAdi, this);
-                            tumKullanicilaraMesajGonder(("kgiris:" + kullaniciAdi), true);
+                            Sunucu.tumKullanicilaraMesajGonder(("kgiris:" + kullaniciAdi), this.soket);
                             kullanicilariGonder();
+                            odalariGonder();
                         }
                         else
                         {
@@ -105,7 +106,7 @@ namespace Heyyo_Sunucu
                     {
                         if (!Sunucu.odaListesi.ContainsKey(par[1]))
                         {
-                            tOdaEkle = new Thread(() => oda = new Oda(this, alinanString));
+                            tOdaEkle = new Thread(() => oda = new Oda(alinanString));
                             tOdaEkle.Start();
                         }     
                     }
@@ -120,7 +121,7 @@ namespace Heyyo_Sunucu
                             {
                                 if (item.Value.odayaKullaniciEkle(this, odaSifresi))
                                 {
-                                    tumKullanicilaraMesajGonder("odayaGirdi:" + odaAdi + ":" + kullaniciAdi, true);
+                                    Sunucu.tumKullanicilaraMesajGonder("odayaGirdi:" + odaAdi + ":" + kullaniciAdi, this.soket);
 
                                     //Bağlanmak isteyen kullanıcıya oda bağlantı bilgileri verilecek
                                     mesajGonder(soket, "odayaGirdi:" + odaAdi + ":" + kullaniciAdi);
@@ -141,19 +142,22 @@ namespace Heyyo_Sunucu
                     else
                     {
                         Console.WriteLine("HATALI MESAJ: " + alinanString);
-                        Thread.Sleep(1000);
+                        Thread.Sleep(100);
                     }
                 }
             }
             catch (SocketException ex)
             {
-                
-                Sunucu.istemciListesi.Remove(kullaniciAdi);
-                tumKullanicilaraMesajGonder(("kcikis:" + kullaniciAdi), false);
-                Console.WriteLine(kullaniciAdi + " çıkış yaptı.");
+                if (Sunucu.istemciListesi.ContainsValue(this))
+                {
+                    Sunucu.istemciListesi.Remove(kullaniciAdi);
+                    if (bulunduguOda != null) { bulunduguOda.bagliIstemciler.Remove(this); }
+                    Sunucu.tumKullanicilaraMesajGonder(("kcikis:" + kullaniciAdi));
+                    Console.WriteLine(kullaniciAdi + " çıkış yaptı.");
+                }
+
                 soket.Close();
-                Console.WriteLine(ex.Message);
-                //Thread.CurrentThread.Abort();
+                Thread.CurrentThread.Abort();
             }
         }
 
@@ -165,44 +169,45 @@ namespace Heyyo_Sunucu
                 mesaj += ":" + item.Value.kullaniciAdi;
             }
             Console.WriteLine(mesaj);
-            byte[] byteKullanicilar = stringToByte(mesaj);
+            byte[] byteKullanicilar = Sunucu.uzunlukBaytlariniEkle(Sunucu.stringToByte(mesaj));
 
             soket.Send(byteKullanicilar, byteKullanicilar.Length, SocketFlags.None);
         }
 
-        private byte[] stringToByte(string mesaj)
-        {
-            return Sunucu.stringToByte(mesaj);
-        }
-
         private void mesajGonder(Socket soket, string mesaj)
         {
-            byte[] byteMesaj = stringToByte(mesaj);
+            byte[] byteMesaj = Sunucu.uzunlukBaytlariniEkle(Sunucu.stringToByte(mesaj));
             soket.Send(byteMesaj, byteMesaj.Length, SocketFlags.None);
         }
 
-        private short byteToShort(byte[] bytes)
+        private void odalariGonder()
         {
-            byte[] uByte = { bytes[0], bytes[1] };
-            return BitConverter.ToInt16(uByte, 0);
-        }
+            List<byte> byteDizisi = new List<byte>();
+            byteDizisi.Add(6); //komutuzunlugu
+            byteDizisi.AddRange(Sunucu.stringToByte("odalar")); //komut
+            byteDizisi.Add((byte)Sunucu.odaListesi.Count); //oda sayısı
 
-        private string byteToString(byte[] bytes)
-        {
-            return Encoding.UTF8.GetString(bytes);
-        }
-
-        public void tumKullanicilaraMesajGonder(string mesaj, bool buIstemciHaricMi)
-        {
-            byte[] byteMesaj = stringToByte(mesaj);
-            foreach (var item in Sunucu.istemciListesi.Values)
+            foreach (var oda in Sunucu.odaListesi.Values)
             {
-                Socket istemciSoketi = item.soket;
 
-                if (istemciSoketi == soket && buIstemciHaricMi){ continue; }
-                istemciSoketi.Send(byteMesaj, byteMesaj.Length, SocketFlags.None);
+                byteDizisi.Add((byte)oda.odaAdi.Length); //oda adı uzunluğu
+                byteDizisi.AddRange(Sunucu.stringToByte(oda.odaAdi)); //oda adı
+                int sifreDurumu = oda.sifreVar ? 1 : 0; //sifre varsa 1 yoksa 0
+                byteDizisi.Add((byte)sifreDurumu); //sifre var mı
+                if (oda.sifreVar) { continue; }; //sifre varsa bağlı kullanıcıları yollama
+                byteDizisi.Add((byte)oda.bagliIstemciler.Count); //odadaki kullanıcı sayısı
+
+                foreach (var istemci in oda.bagliIstemciler)
+                {
+                    byteDizisi.Add((byte)istemci.kullaniciAdi.Length); //kullanıcı adı uzunluğu
+                    byteDizisi.AddRange(Sunucu.stringToByte(istemci.kullaniciAdi)); //kullanıcı adı
+                    byteDizisi.Add(istemci.sesDurumu); //kullanıcının durumu 0-aktif 1-mic muted 2-all muted
+                }
+
             }
-        }
 
+            byte[] byteOdaListesi = Sunucu.uzunlukBaytlariniEkle(byteDizisi.ToArray());
+            soket.Send(byteOdaListesi, byteOdaListesi.Length, SocketFlags.None);
+        }
     }
 }

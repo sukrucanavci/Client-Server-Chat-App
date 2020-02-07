@@ -195,20 +195,18 @@
             this.tvwOdalar.ShowLines = false;
             this.tvwOdalar.ShowPlusMinus = false;
             this.tvwOdalar.Size = new System.Drawing.Size(232, 592);
-            this.tvwOdalar.TabIndex = 0;
+            this.tvwOdalar.TabIndex = 87;
             this.tvwOdalar.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwOdalar_BeforeCollapse);
             this.tvwOdalar.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvwOdalar_MouseDoubleClick);
             // 
             // tabAna
             // 
-            this.tabAna.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabAna.Controls.Add(this.tpOlaylar);
-            this.tabAna.Location = new System.Drawing.Point(238, 64);
+            this.tabAna.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabAna.Location = new System.Drawing.Point(232, 55);
             this.tabAna.Name = "tabAna";
             this.tabAna.SelectedIndex = 0;
-            this.tabAna.Size = new System.Drawing.Size(790, 514);
+            this.tabAna.Size = new System.Drawing.Size(802, 592);
             this.tabAna.TabIndex = 2;
             // 
             // tpOlaylar
@@ -217,7 +215,7 @@
             this.tpOlaylar.Location = new System.Drawing.Point(4, 25);
             this.tpOlaylar.Name = "tpOlaylar";
             this.tpOlaylar.Padding = new System.Windows.Forms.Padding(3);
-            this.tpOlaylar.Size = new System.Drawing.Size(782, 485);
+            this.tpOlaylar.Size = new System.Drawing.Size(794, 563);
             this.tpOlaylar.TabIndex = 0;
             this.tpOlaylar.Text = "Genel Sohbet";
             this.tpOlaylar.UseVisualStyleBackColor = true;
@@ -231,7 +229,7 @@
             this.rtxMesajlar.Name = "rtxMesajlar";
             this.rtxMesajlar.ReadOnly = true;
             this.rtxMesajlar.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
-            this.rtxMesajlar.Size = new System.Drawing.Size(776, 479);
+            this.rtxMesajlar.Size = new System.Drawing.Size(788, 557);
             this.rtxMesajlar.TabIndex = 3;
             this.rtxMesajlar.Text = "";
             // 
@@ -242,7 +240,7 @@
             this.rtxMesajim.Name = "rtxMesajim";
             this.rtxMesajim.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.rtxMesajim.Size = new System.Drawing.Size(802, 75);
-            this.rtxMesajim.TabIndex = 1;
+            this.rtxMesajim.TabIndex = 0;
             this.rtxMesajim.Text = "";
             this.rtxMesajim.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.rtxMesajim_KeyPress);
             // 

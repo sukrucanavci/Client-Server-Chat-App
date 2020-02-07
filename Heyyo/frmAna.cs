@@ -30,8 +30,6 @@ namespace Heyyo
             lstKullanicilar.Sorted = true;
             tvwOdalar.ImageList = imgOdalar;
             tabAna.ImageList = imgSayilar;
-
-            
         }
 
         private void frmAna_Shown(object sender, EventArgs e)
@@ -63,6 +61,8 @@ namespace Heyyo
                 baglantiVar = false;
                 soket.Close();
                 tMesajAlma.Abort();
+                tvwOdalar.Nodes[0].Nodes.Clear();
+                lstKullanicilar.Items.Clear();
             }
             else
             {
@@ -79,7 +79,7 @@ namespace Heyyo
                     byte[] byteMesajUzunlugu = new byte[2];
                     soket.Receive(byteMesajUzunlugu, 2, SocketFlags.None);
 
-                    byte[] mesajBytes = new byte[byteToShort(byteMesajUzunlugu)];
+                    byte[] mesajBytes = new byte[byteToUShort(byteMesajUzunlugu)];
                     soket.Receive(mesajBytes, mesajBytes.Length, SocketFlags.None);
 
                     string mesaj = Encoding.UTF8.GetString(mesajBytes);
@@ -112,13 +112,7 @@ namespace Heyyo
                     }
                     else if (mesaj.StartsWith("odayaGirdi"))
                     {
-                        string girilenOdA = par[1];
-                        string odayaGiren = par[2];
-
-                        tvwOdalar.Invoke((MethodInvoker)delegate {
-                            tvwOdalar.Nodes[0].Nodes[girilenOdA].Nodes.Add(odayaGiren, odayaGiren, 0, 0);
-                            tvwOdalar.Nodes[0].Nodes[girilenOdA].Expand();
-                        });
+                        odayaKullaniciEkle(par[1], par[2], 0);
                     }
                     else if (mesaj.StartsWith("odadanCikti"))
                     {
@@ -144,6 +138,10 @@ namespace Heyyo
                         }
                         catch (Exception) { }
                     }
+                    else if (mesaj.Substring(1).StartsWith("odalar"))
+                    {
+                        odalariGuncelle(mesajBytes);
+                    }
                     else
                     {
                         GenelMesajAlindi(mesaj);
@@ -155,16 +153,16 @@ namespace Heyyo
                 MessageBox.Show("SocketException: " + ex.Message);
                 tMesajAlma.Abort();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Exception:" + ex.Message);
-            }
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Exception:" + ex.Message);
+            //}
         }
 
         public void mesajYolla(string veri)
         {
             byte[] byteVeri = Encoding.UTF8.GetBytes(veri);
-            short uzunluk = (short)byteVeri.Length;
+            ushort uzunluk = (ushort)byteVeri.Length;
             byte[] uBytes = BitConverter.GetBytes(uzunluk);
 
             List<byte> kopyaBytes = new List<byte>();
@@ -330,15 +328,6 @@ namespace Heyyo
             }
         }
 
-        private void odaOlustur(string odaAdi, bool sifreliMi)
-        {
-            int imgIndex = sifreliMi ? 3 : 1; 
-            tvwOdalar.Invoke((MethodInvoker)delegate { tvwOdalar.Nodes[0].Nodes.Add(odaAdi, odaAdi, imgIndex, imgIndex);
-                tvwOdalar.Nodes[0].Expand();
-                //tvwOdalar.Nodes[0].Nodes[odaAdi].Expand();
-            });
-        }
-
         private void tvwOdalar_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
             e.Cancel = true;
@@ -367,10 +356,10 @@ namespace Heyyo
 
         }
 
-        private short byteToShort(byte[] bytes)
+        private ushort byteToUShort(byte[] bytes)
         {
             byte[] uByte = { bytes[0], bytes[1] };
-            return BitConverter.ToInt16(uByte, 0);
+            return BitConverter.ToUInt16(uByte, 0);
         }
 
         private void bağlanToolStripMenuItem_Click(object sender, EventArgs e)
@@ -381,6 +370,56 @@ namespace Heyyo
         private void bağlantıyıKesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             BaglantiyiKes();
+        }
+
+        private void odaOlustur(string odaAdi, bool sifreliMi)
+        {
+            int imgIndex = sifreliMi ? 3 : 1;
+            tvwOdalar.Invoke((MethodInvoker)delegate {
+                tvwOdalar.Nodes[0].Nodes.Add(odaAdi, odaAdi, imgIndex, imgIndex);
+                tvwOdalar.Nodes[0].Expand(); //tvwOdalar.Nodes[0].Nodes[odaAdi].Expand();
+            });
+        }
+
+        private void odayaKullaniciEkle(string girilenOdA, string odayaGiren, byte durum)
+        {
+            tvwOdalar.Invoke((MethodInvoker)delegate {
+                tvwOdalar.Nodes[0].Nodes[girilenOdA].Nodes.Add(odayaGiren, odayaGiren, 0, 0);
+                tvwOdalar.Nodes[0].Nodes[girilenOdA].Expand();
+            });
+        }
+
+        private void odalariGuncelle(byte[] byteDizi)
+        {
+            List<byte> byteListesi = byteDizi.ToList();
+            byteListesi.RemoveRange(0, 7); //komut ve komut uzunluğu çıkartıldı
+            byteDizi = byteListesi.ToArray();
+            ushort index = 0;
+            byte odaSayisi = byteDizi[index++];
+
+            for (int i = 0; i < odaSayisi; i++)
+            {
+                byte odaAdiUzunlugu = byteDizi[index++];
+                string odaAdi = byteToString(byteDizi, index, odaAdiUzunlugu);
+                index += odaAdiUzunlugu;
+                bool odaSifresiVar = byteDizi[index++] == 1 ? true : false;
+                odaOlustur(odaAdi, odaSifresiVar);
+                if (odaSifresiVar){ continue; }
+                byte odadakiKullaniciSayisi = byteDizi[index++];
+                for (int j = 0; j < odadakiKullaniciSayisi; j++)
+                {
+                    byte kullaniciAdiUzunlugu = byteDizi[index++];
+                    string odadakiKullanici = byteToString(byteDizi, index, kullaniciAdiUzunlugu);
+                    index += kullaniciAdiUzunlugu;
+                    byte kullanicininDurumu = byteDizi[index++];
+                    odayaKullaniciEkle(odaAdi, odadakiKullanici, kullanicininDurumu);
+                }
+            }
+        }
+
+        public static string byteToString(byte[] byteDizisi, ushort baslangic, int uzunluk)
+        {
+            return Encoding.UTF8.GetString(byteDizisi, baslangic, uzunluk);
         }
     }
 }

@@ -10,11 +10,10 @@ namespace Heyyo
 {
     public partial class frmOdaOlustur : Form
     {
-        private string olusturan;
         public frmOdaOlustur(string olusturan)
         {
             InitializeComponent();
-            this.olusturan = olusturan;
+
         }
 
         public string komut;
@@ -23,8 +22,7 @@ namespace Heyyo
         {
             string odaAdi = txtOdaAdi.Text;
             string sifre = txtOdaSifresi.Text;
-
-            komut = "odaEkle:" + odaAdi + ":" + sifre + ":" + olusturan;
+            komut = "odaEkle:" + odaAdi + ":" + sifre;
             this.Close();
         }
 

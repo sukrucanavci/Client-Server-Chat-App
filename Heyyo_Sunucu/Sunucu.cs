@@ -79,28 +79,53 @@ namespace Heyyo_Sunucu
             Console.WriteLine(eip + " adresi banlandı!");
         }
 
-        public static void tumKullanicilaraMesajGonder(string mesaj)
+        public static void tumKullanicilaraMesajGonder(string mesaj, params Socket[] istisnaSocketListesi) //çoklu parametre yapılabilir duruma göre
         {
-            byte[] byteMesaj = stringToByte(mesaj);
-            foreach (var item in Sunucu.istemciListesi.Values)
+            byte[] byteMesaj = uzunlukBaytlariniEkle(stringToByte(mesaj));
+            foreach (var istemci in Sunucu.istemciListesi.Values)
             {
-                Socket istemciSoketi = (Socket)item.soket;
-                soket.Send(byteMesaj, byteMesaj.Length, SocketFlags.None);
+                Socket istemciSoketi = istemci.soket;
+
+                foreach (var istisnaSoket in istisnaSocketListesi)
+                {
+                    if (istemciSoketi == istisnaSoket)
+                    {
+                        continue;
+                    }
+                }
+
+                istemciSoketi.Send(byteMesaj, byteMesaj.Length, SocketFlags.None);
+                Console.WriteLine("Gönderildi -> " + istemciSoketi.RemoteEndPoint + " -> " + mesaj.Length + " boyutunda mesaj gönderildi.");
             }
+        }
+
+        public static ushort byteToUShort(byte[] bytes)
+        {
+            byte[] uByte = { bytes[0], bytes[1] };
+            return BitConverter.ToUInt16(uByte, 0);
+        }
+
+        public static string byteToString(byte[] byteDizisi)
+        {
+            return Encoding.UTF8.GetString(byteDizisi);
+        }
+
+        public static byte[] uzunlukBaytlariniEkle(byte[] byteDizisi)
+        {
+            ushort uzunluk = (ushort)byteDizisi.Length;
+            byte[] uBytes = BitConverter.GetBytes(uzunluk);
+            List<byte> kopyaByteDizisi = new List<byte>();
+            kopyaByteDizisi.Add(uBytes[0]);
+            kopyaByteDizisi.Add(uBytes[1]);
+            kopyaByteDizisi.AddRange(byteDizisi);
+            byteDizisi = kopyaByteDizisi.ToArray();
+            return byteDizisi;
         }
 
         public static byte[] stringToByte(string veri)
         {
-            byte[] byteKomut = Encoding.UTF8.GetBytes(veri);
-            short uzunluk = (short)byteKomut.Length;
-            byte[] uBytes = BitConverter.GetBytes(uzunluk);
-
-            List<byte> kopyaByteKomut = new List<byte>();
-            kopyaByteKomut.Add(uBytes[0]);
-            kopyaByteKomut.Add(uBytes[1]);
-            kopyaByteKomut.AddRange(byteKomut);
-            byteKomut = kopyaByteKomut.ToArray();
-            return byteKomut;
+            byte[] bytes = Encoding.UTF8.GetBytes(veri);
+            return bytes;
         }
 
 

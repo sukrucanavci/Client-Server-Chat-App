@@ -4,36 +4,36 @@ namespace Heyyo_Sunucu
 {
     class Oda
     {
-        List<Istemci> bagliIstemciler = new List<Istemci>();
+        public List<Istemci> bagliIstemciler = new List<Istemci>();
         public string odaAdi;
         string odaSifresi;
-        Istemci odaSahibiIstemci;
+        public bool sifreVar;
 
-        public Oda(Istemci odaSahibiIstemci, string komut)
+        public Oda(string komut)
         {
             string[] par = komut.Split(':');
 
             this.odaAdi = par[1];
             this.odaSifresi = par[2];
-            this.odaSahibiIstemci = odaSahibiIstemci;
 
             Sunucu.odaListesi.Add(odaAdi, this);
 
+            sifreVar = odaSifresi != "" ? true : false;
             string sifreDurumu = odaSifresi != "" ? "sifreli" : "sifresiz";
-            odaSahibiIstemci.tumKullanicilaraMesajGonder(par[0] + ":" + par[1] + ":" + sifreDurumu, false);
+            Sunucu.tumKullanicilaraMesajGonder(par[0] + ":" + par[1] + ":" + sifreDurumu);
         }
 
         public bool odayaKullaniciEkle(Istemci istemci, string girilenSifre)
         {
             if (this != istemci.bulunduguOda && odaSifresi == girilenSifre)
             {
-                if (odaSahibiIstemci.bulunduguOda != null)
+                if (istemci.bulunduguOda != null)
                 {
                     Sunucu.tumKullanicilaraMesajGonder("odadanCikti:" + istemci.bulunduguOda.odaAdi + ":" + istemci.kullaniciAdi);
                     istemci.bulunduguOda.bagliIstemciler.Remove(istemci);
                 }
                 bagliIstemciler.Add(istemci);
-                odaSahibiIstemci.bulunduguOda = this;
+                istemci.bulunduguOda = this;
                 return true;
             }
             else
