@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Drawing;
 
 namespace Heyyo
 {
@@ -22,12 +23,59 @@ namespace Heyyo
         public string ip;
         public int port;
         public string kullaniciAdi;
-        private bool baglantiVar = false;
         frmGiris fGiris = new frmGiris();
         Thread tMesajAlma;
+
+        #region Enums
+
+        enum komutlar
+        {
+            kullaniciadi,
+            genelmesaj,
+            ozelmesaj,
+            odalistesi,
+            odaekle,
+            odasil,
+            odayakullanicigirdi,
+            odadankullanicicikti,
+            kullanicilistesi,
+            kullanicigirdi,
+            kullanicicikti,
+            kullaniciodayagirdi,
+            kullaniciodadancikti,
+            kullanicirenginidegistirdi,
+            sunucumesaji,
+            girisbasarli,
+            girisbasarisiz
+        }
+
+        enum cevap
+        {
+            evet,
+            hayır
+        }
+
+        #endregion
+
         private void frmAna_Load(object sender, EventArgs e)
         {
-            lstKullanicilar.Sorted = true;
+            #region Kullanıcı Adı Renkleri
+            List<ToolStripMenuItem> renkler = new List<ToolStripMenuItem>();
+            renkler.Add(new ToolStripMenuItem()); renkler[0].BackColor = Color.Blue;
+            renkler.Add(new ToolStripMenuItem()); renkler[1].BackColor = Color.Red;
+            renkler.Add(new ToolStripMenuItem()); renkler[2].BackColor = Color.Green;
+            renkler.Add(new ToolStripMenuItem()); renkler[3].BackColor = Color.GreenYellow;
+            renkler.Add(new ToolStripMenuItem()); renkler[4].BackColor = Color.YellowGreen;
+            renkler.Add(new ToolStripMenuItem()); renkler[5].BackColor = Color.Cyan;
+            renkler.Add(new ToolStripMenuItem()); renkler[6].BackColor = Color.DarkCyan;
+            renkler.Add(new ToolStripMenuItem()); renkler[7].BackColor = Color.Pink;
+            renkler.Add(new ToolStripMenuItem()); renkler[8].BackColor = Color.Purple;
+            renkler.Add(new ToolStripMenuItem()); renkler[9].BackColor = Color.Orange;
+            renkler.Add(new ToolStripMenuItem()); renkler[10].BackColor = Color.Brown;
+
+            tsmiKullaniciAdiRengi.DropDownItems.AddRange(renkler.ToArray());
+            #endregion
+
             tvwOdalar.ImageList = imgOdalar;
             tabAna.ImageList = imgSayilar;
         }
@@ -39,15 +87,14 @@ namespace Heyyo
 
         public void Baglan()
         {
-            if (baglantiVar)
-            {
-                BaglantiyiKes();
-            }
+            if (soket.Connected) { BaglantiyiKes(); }
             soket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             soket.Connect(fGiris.lep);
-            baglantiVar = true;
             kullaniciAdi = fGiris.kullaniciAdi;
-            mesajYolla("nickname:" + kullaniciAdi);
+
+            List<byte> byteList = Encoding.UTF8.GetBytes(kullaniciAdi).ToList();
+            byteList.Insert(0, (byte)((char)komutlar.kullaniciadi));
+            MesajYolla(byteList.ToArray());
 
             tMesajAlma = new Thread(MesajAlma);
             tMesajAlma.Start();
@@ -55,14 +102,14 @@ namespace Heyyo
 
         public void BaglantiyiKes()
         {
-            if (baglantiVar)
+            if (soket.Connected)
             {
-                rtxMesajlar.AppendText(soket.RemoteEndPoint + " bağlantısı kapatıldı.");
-                baglantiVar = false;
+                rtxG.AppendText(soket.RemoteEndPoint + " bağlantısı kapatıldı.");
                 soket.Close();
                 tMesajAlma.Abort();
                 tvwOdalar.Nodes[0].Nodes.Clear();
-                lstKullanicilar.Items.Clear();
+                tvwKullanicilar.Nodes[0].Nodes.Clear();
+                tvwKullanicilar.Nodes[1].Nodes.Clear();
             }
             else
             {
@@ -74,7 +121,7 @@ namespace Heyyo
         {
             try
             {
-                while (baglantiVar)
+                while (soket.Connected)
                 {
                     byte[] byteMesajUzunlugu = new byte[2];
                     soket.Receive(byteMesajUzunlugu, 2, SocketFlags.None);
@@ -82,31 +129,35 @@ namespace Heyyo
                     byte[] mesajBytes = new byte[byteToUShort(byteMesajUzunlugu)];
                     soket.Receive(mesajBytes, mesajBytes.Length, SocketFlags.None);
 
-                    string mesaj = Encoding.UTF8.GetString(mesajBytes);
+                    string mesaj = Encoding.UTF8.GetString(mesajBytes); MessageBox.Show(mesaj);
                     string[] par = mesaj.Split(':');
 
-                    if (mesaj.StartsWith("gMesaj"))
+                    switch (mesajBytes[0])
                     {
-                        GenelMesajAlindi(mesaj.Substring(7));
+                        case (byte)komutlar.genelmesaj:
+                            GenelMesajAlindi(mesajBytes); break;
+                        case (byte)komutlar.ozelmesaj:
+                            OzelMesajAlindi(mesajBytes); break;
+                        case (byte)komutlar.kullanicigirdi:
+
+                        default:
+                            break;
                     }
-                    else if (mesaj.StartsWith("oMesaj"))
+
+
+                    if (mesaj.StartsWith("kgiris"))
                     {
-                        OzelMesajAlindi(mesaj);
-                    }
-                    else if (mesaj.StartsWith("kgiris"))
-                    {
-                        lstKullanicilar.Invoke((MethodInvoker)delegate { lstKullanicilar.Items.Add(par[1]); });
+                        tvwKullanicilar.Invoke((MethodInvoker)delegate { tvwKullanicilar.Nodes[1].Nodes.Add(par[1], par[1]); });
                     }
                     else if (mesaj.StartsWith("kcikis"))
                     {
-                        lstKullanicilar.Invoke((MethodInvoker)delegate { lstKullanicilar.Items.Remove(par[1]); });
+                        tvwKullanicilar.Invoke((MethodInvoker)delegate { tvwKullanicilar.Nodes[1].Nodes.RemoveByKey(par[1]); });
                     }
                     else if (mesaj.StartsWith("giris"))
                     {
                         if (par[1] == "basarisiz")
                         {
                             MessageBox.Show(mesaj);
-                            baglantiVar = false;
                             break;
                         }
                     }
@@ -121,7 +172,6 @@ namespace Heyyo
 
                         tvwOdalar.Invoke((MethodInvoker)delegate {
                             tvwOdalar.Nodes[0].Nodes[cikilanOdA].Nodes.RemoveByKey(odadanCikan);
-                            //tvwOdalar.Nodes[0].Nodes[cikilanOdA].Expand();
                         });
                     }
                     else if (mesaj.StartsWith("odaEkle"))
@@ -129,14 +179,23 @@ namespace Heyyo
                         bool sifreliMi = (par[2] == "sifreli") ? true : false;
                         odaOlustur(par[1], sifreliMi);
                     }
-                    else if (mesaj.StartsWith("kullanicilar"))
+                    else if (mesaj.Substring(1).StartsWith("kullanicilar"))
                     {
-                        try
+                        List<byte> byteListesi = mesajBytes.ToList();
+                        byteListesi.RemoveRange(0, 13);
+                        byte[] byteDizisi = byteListesi.ToArray();
+
+                        ushort index = 0;
+                        byte kullaniciSayisi = byteDizisi[index++];
+
+                        for (int i = 0; i < kullaniciSayisi; i++)
                         {
-                            string[] kullanicilar = mesaj.Substring(13).Split(':');
-                            lstKullanicilar.Invoke((MethodInvoker)delegate { lstKullanicilar.Items.AddRange(kullanicilar); });
+                            byte yetki = byteDizisi[index++];
+                            byte adUzunlugu = byteDizisi[index++];
+                            string ad = byteToString(byteDizisi, index, adUzunlugu);
+                            index += adUzunlugu;
+                            kullaniciEkle(yetki, ad, byteDizisi[index++], byteDizisi[index++], byteDizisi[index++]);
                         }
-                        catch (Exception) { }
                     }
                     else if (mesaj.Substring(1).StartsWith("odalar"))
                     {
@@ -144,110 +203,151 @@ namespace Heyyo
                     }
                     else
                     {
-                        GenelMesajAlindi(mesaj);
+                        //MessageBox.Show(mesaj);
                     }
                 }
             }
             catch (SocketException ex)
             {
                 MessageBox.Show("SocketException: " + ex.Message);
+                BaglantiyiKes();
                 tMesajAlma.Abort();
             }
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Exception:" + ex.Message);
-            //}
         }
 
-        public void mesajYolla(string veri)
+        private void odalariGuncelle(byte[] byteDizi)
         {
-            byte[] byteVeri = Encoding.UTF8.GetBytes(veri);
-            ushort uzunluk = (ushort)byteVeri.Length;
+            List<byte> byteListesi = byteDizi.ToList();
+            byteListesi.RemoveRange(0, 7); //komut ve komut uzunluğu çıkartıldı
+            byteDizi = byteListesi.ToArray();
+            ushort index = 0;
+            byte odaSayisi = byteDizi[index++];
+
+            for (int i = 0; i < odaSayisi; i++)
+            {
+                byte odaAdiUzunlugu = byteDizi[index++];
+                string odaAdi = byteToString(byteDizi, index, odaAdiUzunlugu);
+                index += odaAdiUzunlugu;
+                bool odaSifresiVar = byteDizi[index++] == 1 ? true : false;
+                odaOlustur(odaAdi, odaSifresiVar);
+                if (odaSifresiVar) { continue; }
+                byte odadakiKullaniciSayisi = byteDizi[index++];
+                for (int j = 0; j < odadakiKullaniciSayisi; j++)
+                {
+                    byte kullaniciAdiUzunlugu = byteDizi[index++];
+                    string odadakiKullanici = byteToString(byteDizi, index, kullaniciAdiUzunlugu);
+                    index += kullaniciAdiUzunlugu;
+                    byte kullanicininDurumu = byteDizi[index++];
+                    odayaKullaniciEkle(odaAdi, odadakiKullanici, kullanicininDurumu);
+                }
+            }
+        }
+
+        private void kullaniciEkle(byte yetki, string ad, byte r, byte g, byte b)
+        {
+            tvwKullanicilar.Invoke((MethodInvoker)delegate {
+                tvwKullanicilar.Nodes[yetki].Nodes.Add(ad, ad);
+                tvwKullanicilar.Nodes[yetki].Nodes[ad].ForeColor = Color.FromArgb(r, g, b);
+                tvwKullanicilar.Nodes[yetki].Expand();
+            });
+        }
+
+        /// <summary>
+        /// Uzunluk bytelarını ekleyip mesajı sunucuya gönderir
+        /// </summary>
+        public void MesajYolla(byte[] mesajBytes)
+        {
+            ushort uzunluk = (ushort)mesajBytes.Length;
             byte[] uBytes = BitConverter.GetBytes(uzunluk);
 
             List<byte> kopyaBytes = new List<byte>();
             kopyaBytes.Add(uBytes[0]);
             kopyaBytes.Add(uBytes[1]);
-            kopyaBytes.AddRange(byteVeri);
-            byteVeri = kopyaBytes.ToArray();
+            kopyaBytes.AddRange(mesajBytes);
+            mesajBytes = kopyaBytes.ToArray();
 
             if (soket.Connected)
-            {
-                soket.Send(byteVeri, byteVeri.Length, SocketFlags.None);
-            }
+                soket.Send(mesajBytes, mesajBytes.Length, SocketFlags.None);
             else
-            {
-                MessageBox.Show("Sunucuya bağlantın yok kardeşim");
-            }
-            
+                MessageBox.Show("Sunucuya bağlantın yok kardeşim");  
         }
 
-        private void GenelMesajAlindi(string mesaj)
+        private void GenelMesajAlindi(byte[] byteMesaj)
         {
-            rtxMesajlar.Invoke((MethodInvoker)delegate{ rtxMesajlar.AppendText(mesaj + Environment.NewLine); });
+            ushort index = 1;
+            byte gonderenAdiUzunlugu = byteMesaj[index++];
+            string mesajiGonderen = Encoding.UTF8.GetString(byteMesaj, index, gonderenAdiUzunlugu);
+            index += gonderenAdiUzunlugu;
+            string mesaj = Encoding.UTF8.GetString(byteMesaj, index, byteMesaj.Length - index);
+
+            rtxG.Invoke((MethodInvoker)delegate {
+                rtxG.SelectionStart = rtxG.TextLength;
+                rtxG.SelectionLength = 0;
+                rtxG.SelectionColor = tvwKullanicilar.Nodes["kullanicilar"].Nodes[mesajiGonderen].ForeColor;
+                rtxG.AppendText(mesajiGonderen + ": ");
+                rtxG.ScrollToCaret();
+                rtxG.SelectionColor = Color.Black;
+                rtxG.AppendText(mesaj + Environment.NewLine);
+            });
         }
-        
-        private void OzelMesajAlindi(string hMesaj)
+
+        private void OzelMesajAlindi(byte[] byteMesaj)
         {
             bool tabPageVar = false;
+            ushort index = 1;
 
-            string gonderici = hMesaj.Split(':')[1];
-            string alici = hMesaj.Split(':')[2];
+            byte gonderenAdiUzunlugu = byteMesaj[index++];
+            string gonderenAdi = Encoding.UTF8.GetString(byteMesaj, index, gonderenAdiUzunlugu);
+            index += gonderenAdiUzunlugu;
 
-            int mBaslangic = gonderici.Length + alici.Length + 9;
-            string mesaj = hMesaj.Substring(mBaslangic);
-            
-            if (gonderici != kullaniciAdi)
+            byte aliciAdiUzunlugu = byteMesaj[index++];
+            string aliciAdi = Encoding.UTF8.GetString(byteMesaj, index, gonderenAdiUzunlugu);
+            index += aliciAdiUzunlugu;
+
+            string mesaj = Encoding.UTF8.GetString(byteMesaj, index, byteMesaj.Length - index);
+
+
+            if (gonderenAdi != kullaniciAdi)
             {
-                foreach (var ctl in tabAna.Controls.OfType<Control>())
-                {
-                    if (ctl.Text == gonderici)
-                    {
-                        tabPageVar = true;
-                        break;
-                    }
-                }
 
-                if (!tabPageVar)
+                if (!tabAna.Controls.ContainsKey(gonderenAdi))
                 {
+                    tp = new TabPage(gonderenAdi);
+                    tp.Name = "tp" + gonderenAdi;
+
                     rtx = new RichTextBox();
-                    rtx.Name = "rtx" + gonderici;
+                    rtx.Name = "rtx" + gonderenAdi;
                     rtx.Dock = DockStyle.Fill;
-                    //rtx.Multiline = true;
-
-                    tp = new TabPage(gonderici);
-                    tp.Name = "tp" + gonderici;
-                    tp.ImageIndex = 0;
+                    rtx.ReadOnly = true;
 
                     tabAna.Invoke((MethodInvoker)delegate { tabAna.TabPages.Add(tp);});
-                    
                     tp.Invoke((MethodInvoker)delegate { tp.Controls.Add(rtx); });
                 }
 
-                foreach (var ctl in tabAna.Controls.OfType<Control>())
-                {
-                    foreach (var ctlrtx in ctl.Controls.OfType<Control>())
-                    {
-                        if (ctlrtx.Name == "rtx" + gonderici)
-                        {
-                            rtx.Invoke((MethodInvoker)delegate { ctlrtx.Text += gonderici + " >> " + mesaj + Environment.NewLine;});
 
+                foreach (var ctl in tabAna.Controls.OfType<TabPage>())
+                {
+                    foreach (var ctlrtx in ctl.Controls.OfType<RichTextBox>())
+                    {
+                        if (ctlrtx.Name == "rtx" + gonderenAdi)
+                        {
+                            rtx.Invoke((MethodInvoker)delegate { 
+                                ctlrtx.Text += gonderenAdi + " >> " + mesaj + Environment.NewLine;
+                            });
                             break;
                         }
                     }
                 }
             }
-            else if (gonderici == kullaniciAdi)
+            else if (gonderenAdi == kullaniciAdi)
             {
-                foreach (var ctl in tabAna.Controls.OfType<Control>())
+                foreach (var ctl in tabAna.Controls.OfType<TabPage>())
                 {
-                    foreach (var ctlrtx in ctl.Controls.OfType<Control>())
+                    foreach (var ctlrtx in ctl.Controls.OfType<RichTextBox>())
                     {
-                        if (ctlrtx.Name == "rtx" + alici)
+                        if (ctlrtx.Name == "rtx" + aliciAdi)
                         {
-                            rtx.Invoke((MethodInvoker)delegate { ctlrtx.Text += gonderici + " >> " + mesaj + Environment.NewLine;});
-                            
-                            break;
+                            rtx.Invoke((MethodInvoker)delegate { ctlrtx.Text += aliciAdi + " >> " + mesaj + Environment.NewLine;}); break;
                         }
                     }
                 }
@@ -264,19 +364,25 @@ namespace Heyyo
         {
             if (e.KeyChar == Convert.ToChar(Keys.Enter) && rtxMesajim.TextLength > 1)
             {
-                string mesaj = default;
+                List<byte> byteListesi = new List<byte>();
 
                 if (tabAna.SelectedIndex == 0)
                 {
-                    mesaj = "gMesaj:" + rtxMesajim.Text;
+                    string genelMesaj = (char)komutlar.genelmesaj + rtxMesajim.Text.Substring(0, rtxMesajim.TextLength - 1);
+                    byteListesi.AddRange(Encoding.UTF8.GetBytes(genelMesaj));
                 }
                 else
                 {
-                    string alici = tabAna.SelectedTab.Text;
-                    mesaj = "oMesaj:" + alici + ":" + rtxMesajim.Text;
+                    byte[] aliciBytes = Encoding.UTF8.GetBytes(tabAna.SelectedTab.Text);
+                    byte aliciAdiUzunlugu = (byte)((char)aliciBytes.Length);
+                    byte[] mesajByte = Encoding.UTF8.GetBytes(rtxMesajim.Text.Substring(0, rtxMesajim.TextLength - 1));
+                    byteListesi.Add((byte)((char)komutlar.ozelmesaj));
+                    byteListesi.Add(aliciAdiUzunlugu);
+                    byteListesi.AddRange(aliciBytes);
+                    byteListesi.AddRange(mesajByte);  
                 }
-                mesaj = mesaj.Substring(0, mesaj.Length - 1); //Son karakteri yani ENTER'ı siliyoruz
-                mesajYolla(mesaj);
+
+                MesajYolla(byteListesi.ToArray());
                 rtxMesajim.Clear();
             }
             else if (e.KeyChar == Convert.ToChar(Keys.Enter))
@@ -285,14 +391,84 @@ namespace Heyyo
             }
         }
 
-        private void mesajGonderToolStripMenuItem_Click(object sender, EventArgs e)
+        private void tsbKanalOlustur_Click(object sender, EventArgs e)
         {
-            if (lstKullanicilar.SelectedIndex == -1)
+            using (frmOdaOlustur foo = new frmOdaOlustur(kullaniciAdi))
+            {
+                foo.ShowDialog();
+                if (foo.komut != null) { MesajYolla(Encoding.UTF8.GetBytes(foo.komut)); }
+            }
+        }
+
+        private ushort byteToUShort(byte[] bytes)
+        {
+            byte[] uByte = { bytes[0], bytes[1] };
+            return BitConverter.ToUInt16(uByte, 0);
+        }
+
+        private void tsmiBaglan_Click(object sender, EventArgs e)
+        {
+            fGiris.ShowDialog();
+        }
+
+        private void tsmiBaglantiyiKes_Click(object sender, EventArgs e)
+        {
+            BaglantiyiKes();
+        }
+
+        private void odaOlustur(string odaAdi, bool sifreliMi)
+        {
+            int imgIndex = sifreliMi ? 3 : 1;
+            tvwOdalar.Invoke((MethodInvoker)delegate {
+                tvwOdalar.Nodes[0].Nodes.Add(odaAdi, odaAdi, imgIndex, imgIndex);
+                tvwOdalar.Nodes[0].Expand();
+            });
+        }
+
+        private void odayaKullaniciEkle(string girilenOdA, string odayaGiren, byte durum)
+        {
+            tvwOdalar.Invoke((MethodInvoker)delegate {
+                tvwOdalar.Nodes[0].Nodes[girilenOdA].Nodes.Add(odayaGiren, odayaGiren, 0, 0);
+                tvwOdalar.Nodes[0].Nodes[girilenOdA].Expand();
+            });
+        }
+
+        public static string byteToString(byte[] byteDizisi, ushort baslangic = 0, int uzunluk = default)
+        {
+            return Encoding.UTF8.GetString(byteDizisi, baslangic, uzunluk);
+        }
+
+        private void tvwOdalar_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            string secilenOda = tvwOdalar.SelectedNode.Text;
+            if (tvwOdalar.Nodes[0].Nodes.ContainsKey(secilenOda))
+            {
+                if (tvwOdalar.SelectedNode.ImageIndex == 3)
+                {
+                    using (frmOdaGiris fog = new frmOdaGiris(secilenOda))
+                    {
+                        fog.ShowDialog();
+                        string odaSifresi = fog.odaSifresi;
+                        MesajYolla(Encoding.UTF8.GetBytes("odayaGiris:" + secilenOda + ":" + odaSifresi));
+                    }
+                }
+                else
+                {
+                    MesajYolla(Encoding.UTF8.GetBytes("odayaGiris:" + secilenOda + ":"));
+                }
+
+            }
+
+        }
+
+        private void tvwKullanicilar_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (!tvwKullanicilar.Nodes[1].Nodes.ContainsKey(tvwKullanicilar.SelectedNode.Text))
             {
                 return;
             }
 
-            string alici = lstKullanicilar.SelectedItem.ToString();
+            string alici = tvwKullanicilar.SelectedNode.Text;
             bool tabPageVar = false;
             foreach (var ctl in tabAna.Controls.OfType<Control>())
             {
@@ -319,107 +495,14 @@ namespace Heyyo
             }
         }
 
-        private void tsbKanalOlustur_Click(object sender, EventArgs e)
+        private void tvwKullanicilar_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
-            using (frmOdaOlustur foo = new frmOdaOlustur(kullaniciAdi))
-            {
-                foo.ShowDialog();
-                if (foo.komut != null) { mesajYolla(foo.komut); }
-            }
+            e.Cancel = true;
         }
 
         private void tvwOdalar_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
             e.Cancel = true;
-        }
-
-        private void tvwOdalar_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            string secilenOda = tvwOdalar.SelectedNode.Text;
-            if (tvwOdalar.Nodes[0].Nodes.ContainsKey(secilenOda))
-            {
-                if (tvwOdalar.SelectedNode.ImageIndex == 3)
-                {
-                    using (frmOdaGiris fog = new frmOdaGiris(secilenOda))
-                    {
-                        fog.ShowDialog();
-                        string odaSifresi = fog.odaSifresi;
-                        mesajYolla("odayaGiris:" + secilenOda + ":" + odaSifresi);
-                    }
-                }
-                else
-                {
-                    mesajYolla("odayaGiris:" + secilenOda + ":");
-                }
-
-            }
-
-        }
-
-        private ushort byteToUShort(byte[] bytes)
-        {
-            byte[] uByte = { bytes[0], bytes[1] };
-            return BitConverter.ToUInt16(uByte, 0);
-        }
-
-        private void bağlanToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            fGiris.ShowDialog();
-        }
-
-        private void bağlantıyıKesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            BaglantiyiKes();
-        }
-
-        private void odaOlustur(string odaAdi, bool sifreliMi)
-        {
-            int imgIndex = sifreliMi ? 3 : 1;
-            tvwOdalar.Invoke((MethodInvoker)delegate {
-                tvwOdalar.Nodes[0].Nodes.Add(odaAdi, odaAdi, imgIndex, imgIndex);
-                tvwOdalar.Nodes[0].Expand(); //tvwOdalar.Nodes[0].Nodes[odaAdi].Expand();
-            });
-        }
-
-        private void odayaKullaniciEkle(string girilenOdA, string odayaGiren, byte durum)
-        {
-            tvwOdalar.Invoke((MethodInvoker)delegate {
-                tvwOdalar.Nodes[0].Nodes[girilenOdA].Nodes.Add(odayaGiren, odayaGiren, 0, 0);
-                tvwOdalar.Nodes[0].Nodes[girilenOdA].Expand();
-            });
-        }
-
-        private void odalariGuncelle(byte[] byteDizi)
-        {
-            List<byte> byteListesi = byteDizi.ToList();
-            byteListesi.RemoveRange(0, 7); //komut ve komut uzunluğu çıkartıldı
-            byteDizi = byteListesi.ToArray();
-            ushort index = 0;
-            byte odaSayisi = byteDizi[index++];
-
-            for (int i = 0; i < odaSayisi; i++)
-            {
-                byte odaAdiUzunlugu = byteDizi[index++];
-                string odaAdi = byteToString(byteDizi, index, odaAdiUzunlugu);
-                index += odaAdiUzunlugu;
-                bool odaSifresiVar = byteDizi[index++] == 1 ? true : false;
-                odaOlustur(odaAdi, odaSifresiVar);
-                if (odaSifresiVar){ continue; }
-                byte odadakiKullaniciSayisi = byteDizi[index++];
-                for (int j = 0; j < odadakiKullaniciSayisi; j++)
-                {
-                    byte kullaniciAdiUzunlugu = byteDizi[index++];
-                    string odadakiKullanici = byteToString(byteDizi, index, kullaniciAdiUzunlugu);
-                    index += kullaniciAdiUzunlugu;
-                    byte kullanicininDurumu = byteDizi[index++];
-                    odayaKullaniciEkle(odaAdi, odadakiKullanici, kullanicininDurumu);
-                }
-            }
-        }
-
-        public static string byteToString(byte[] byteDizisi, ushort baslangic, int uzunluk)
-        {
-            return Encoding.UTF8.GetString(byteDizisi, baslangic, uzunluk);
         }
     }
 }

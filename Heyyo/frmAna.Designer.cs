@@ -30,14 +30,17 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Ses Kanalları");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Yöneticiler");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Kullanıcılar");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAna));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.bağlantıToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bağlanToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bağlantıyıKesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiBaglan = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiBaglantiyiKes = new System.Windows.Forms.ToolStripMenuItem();
             this.ayarlarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.SunucuAyarlarıToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tümAyarlarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fontAyarlarıToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRenkAyarları = new System.Windows.Forms.ToolStripMenuItem();
             this.yardımToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.güncellemeleriDenetleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hakkındaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,27 +49,28 @@
             this.tsslKullaniciAdi = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslPing = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvwOdalar = new System.Windows.Forms.TreeView();
-            this.tabAna = new System.Windows.Forms.TabControl();
-            this.tpOlaylar = new System.Windows.Forms.TabPage();
-            this.rtxMesajlar = new System.Windows.Forms.RichTextBox();
-            this.rtxMesajim = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-            this.tsbKullaniciListesi = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbKanalOlustur = new System.Windows.Forms.ToolStripButton();
-            this.lstKullanicilar = new System.Windows.Forms.ListBox();
             this.cmsKullanicilar = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mesajGönderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imgSayilar = new System.Windows.Forms.ImageList(this.components);
             this.imgOdalar = new System.Windows.Forms.ImageList(this.components);
+            this.tvwKullanicilar = new System.Windows.Forms.TreeView();
+            this.rtxMesajim = new System.Windows.Forms.RichTextBox();
+            this.tabAna = new System.Windows.Forms.TabControl();
+            this.tpG = new System.Windows.Forms.TabPage();
+            this.rtxG = new System.Windows.Forms.RichTextBox();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.tsbKullaniciListesi = new System.Windows.Forms.ToolStripButton();
+            this.tsbKanalOlustur = new System.Windows.Forms.ToolStripButton();
+            this.tsmiKullaniciAdiRengi = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.ssrBilgi.SuspendLayout();
-            this.tabAna.SuspendLayout();
-            this.tpOlaylar.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.cmsKullanicilar.SuspendLayout();
+            this.tabAna.SuspendLayout();
+            this.tpG.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -86,46 +90,55 @@
             // bağlantıToolStripMenuItem
             // 
             this.bağlantıToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bağlanToolStripMenuItem,
-            this.bağlantıyıKesToolStripMenuItem});
+            this.tsmiBaglan,
+            this.tsmiBaglantiyiKes});
             this.bağlantıToolStripMenuItem.Name = "bağlantıToolStripMenuItem";
             this.bağlantıToolStripMenuItem.Size = new System.Drawing.Size(78, 24);
             this.bağlantıToolStripMenuItem.Text = "Bağlantı";
             // 
-            // bağlanToolStripMenuItem
+            // tsmiBaglan
             // 
-            this.bağlanToolStripMenuItem.Name = "bağlanToolStripMenuItem";
-            this.bağlanToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.bağlanToolStripMenuItem.Text = "Bağlan";
-            this.bağlanToolStripMenuItem.Click += new System.EventHandler(this.bağlanToolStripMenuItem_Click);
+            this.tsmiBaglan.Name = "tsmiBaglan";
+            this.tsmiBaglan.Size = new System.Drawing.Size(185, 26);
+            this.tsmiBaglan.Text = "Bağlan";
+            this.tsmiBaglan.Click += new System.EventHandler(this.tsmiBaglan_Click);
             // 
-            // bağlantıyıKesToolStripMenuItem
+            // tsmiBaglantiyiKes
             // 
-            this.bağlantıyıKesToolStripMenuItem.Name = "bağlantıyıKesToolStripMenuItem";
-            this.bağlantıyıKesToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.bağlantıyıKesToolStripMenuItem.Text = "Bağlantıyı Kes";
-            this.bağlantıyıKesToolStripMenuItem.Click += new System.EventHandler(this.bağlantıyıKesToolStripMenuItem_Click);
+            this.tsmiBaglantiyiKes.Name = "tsmiBaglantiyiKes";
+            this.tsmiBaglantiyiKes.Size = new System.Drawing.Size(185, 26);
+            this.tsmiBaglantiyiKes.Text = "Bağlantıyı Kes";
+            this.tsmiBaglantiyiKes.Click += new System.EventHandler(this.tsmiBaglantiyiKes_Click);
             // 
             // ayarlarToolStripMenuItem
             // 
             this.ayarlarToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.SunucuAyarlarıToolStripMenuItem,
-            this.tümAyarlarToolStripMenuItem});
+            this.tümAyarlarToolStripMenuItem,
+            this.fontAyarlarıToolStripMenuItem,
+            this.tsmiRenkAyarları});
             this.ayarlarToolStripMenuItem.Name = "ayarlarToolStripMenuItem";
             this.ayarlarToolStripMenuItem.Size = new System.Drawing.Size(70, 24);
             this.ayarlarToolStripMenuItem.Text = "Ayarlar";
             // 
-            // SunucuAyarlarıToolStripMenuItem
-            // 
-            this.SunucuAyarlarıToolStripMenuItem.Name = "SunucuAyarlarıToolStripMenuItem";
-            this.SunucuAyarlarıToolStripMenuItem.Size = new System.Drawing.Size(194, 26);
-            this.SunucuAyarlarıToolStripMenuItem.Text = "Sunucu Ayarları";
-            // 
             // tümAyarlarToolStripMenuItem
             // 
             this.tümAyarlarToolStripMenuItem.Name = "tümAyarlarToolStripMenuItem";
-            this.tümAyarlarToolStripMenuItem.Size = new System.Drawing.Size(194, 26);
+            this.tümAyarlarToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.tümAyarlarToolStripMenuItem.Text = "Ses Ayarları";
+            // 
+            // fontAyarlarıToolStripMenuItem
+            // 
+            this.fontAyarlarıToolStripMenuItem.Name = "fontAyarlarıToolStripMenuItem";
+            this.fontAyarlarıToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.fontAyarlarıToolStripMenuItem.Text = "Font Ayarları";
+            // 
+            // tsmiRenkAyarları
+            // 
+            this.tsmiRenkAyarları.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiKullaniciAdiRengi});
+            this.tsmiRenkAyarları.Name = "tsmiRenkAyarları";
+            this.tsmiRenkAyarları.Size = new System.Drawing.Size(224, 26);
+            this.tsmiRenkAyarları.Text = "Renk Ayarları";
             // 
             // yardımToolStripMenuItem
             // 
@@ -187,62 +200,17 @@
             this.tvwOdalar.Location = new System.Drawing.Point(0, 55);
             this.tvwOdalar.Name = "tvwOdalar";
             treeNode1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            treeNode1.Name = "nSesKanallari";
+            treeNode1.Name = "sesKanallari";
             treeNode1.NodeFont = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             treeNode1.Text = "Ses Kanalları";
             this.tvwOdalar.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1});
             this.tvwOdalar.ShowLines = false;
             this.tvwOdalar.ShowPlusMinus = false;
-            this.tvwOdalar.Size = new System.Drawing.Size(232, 592);
+            this.tvwOdalar.Size = new System.Drawing.Size(252, 592);
             this.tvwOdalar.TabIndex = 87;
             this.tvwOdalar.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwOdalar_BeforeCollapse);
             this.tvwOdalar.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvwOdalar_MouseDoubleClick);
-            // 
-            // tabAna
-            // 
-            this.tabAna.Controls.Add(this.tpOlaylar);
-            this.tabAna.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabAna.Location = new System.Drawing.Point(232, 55);
-            this.tabAna.Name = "tabAna";
-            this.tabAna.SelectedIndex = 0;
-            this.tabAna.Size = new System.Drawing.Size(802, 592);
-            this.tabAna.TabIndex = 2;
-            // 
-            // tpOlaylar
-            // 
-            this.tpOlaylar.Controls.Add(this.rtxMesajlar);
-            this.tpOlaylar.Location = new System.Drawing.Point(4, 25);
-            this.tpOlaylar.Name = "tpOlaylar";
-            this.tpOlaylar.Padding = new System.Windows.Forms.Padding(3);
-            this.tpOlaylar.Size = new System.Drawing.Size(794, 563);
-            this.tpOlaylar.TabIndex = 0;
-            this.tpOlaylar.Text = "Genel Sohbet";
-            this.tpOlaylar.UseVisualStyleBackColor = true;
-            // 
-            // rtxMesajlar
-            // 
-            this.rtxMesajlar.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rtxMesajlar.Location = new System.Drawing.Point(3, 3);
-            this.rtxMesajlar.Name = "rtxMesajlar";
-            this.rtxMesajlar.ReadOnly = true;
-            this.rtxMesajlar.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
-            this.rtxMesajlar.Size = new System.Drawing.Size(788, 557);
-            this.rtxMesajlar.TabIndex = 3;
-            this.rtxMesajlar.Text = "";
-            // 
-            // rtxMesajim
-            // 
-            this.rtxMesajim.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.rtxMesajim.Location = new System.Drawing.Point(232, 572);
-            this.rtxMesajim.Name = "rtxMesajim";
-            this.rtxMesajim.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.rtxMesajim.Size = new System.Drawing.Size(802, 75);
-            this.rtxMesajim.TabIndex = 0;
-            this.rtxMesajim.Text = "";
-            this.rtxMesajim.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.rtxMesajim_KeyPress);
             // 
             // toolStrip1
             // 
@@ -259,6 +227,108 @@
             this.toolStrip1.Size = new System.Drawing.Size(1262, 27);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
+            // 
+            // cmsKullanicilar
+            // 
+            this.cmsKullanicilar.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.cmsKullanicilar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mesajGönderToolStripMenuItem});
+            this.cmsKullanicilar.Name = "cmsKullanicilar";
+            this.cmsKullanicilar.Size = new System.Drawing.Size(171, 28);
+            // 
+            // mesajGönderToolStripMenuItem
+            // 
+            this.mesajGönderToolStripMenuItem.Name = "mesajGönderToolStripMenuItem";
+            this.mesajGönderToolStripMenuItem.Size = new System.Drawing.Size(170, 24);
+            this.mesajGönderToolStripMenuItem.Text = "Mesaj Gönder";
+            // 
+            // imgSayilar
+            // 
+            this.imgSayilar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgSayilar.ImageStream")));
+            this.imgSayilar.TransparentColor = System.Drawing.Color.Transparent;
+            this.imgSayilar.Images.SetKeyName(0, "1.png");
+            // 
+            // imgOdalar
+            // 
+            this.imgOdalar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgOdalar.ImageStream")));
+            this.imgOdalar.TransparentColor = System.Drawing.Color.Transparent;
+            this.imgOdalar.Images.SetKeyName(0, "varsayilan.png");
+            this.imgOdalar.Images.SetKeyName(1, "oda24.png");
+            this.imgOdalar.Images.SetKeyName(2, "kullanici.png");
+            this.imgOdalar.Images.SetKeyName(3, "kilit.png");
+            // 
+            // tvwKullanicilar
+            // 
+            this.tvwKullanicilar.ContextMenuStrip = this.cmsKullanicilar;
+            this.tvwKullanicilar.Dock = System.Windows.Forms.DockStyle.Right;
+            this.tvwKullanicilar.FullRowSelect = true;
+            this.tvwKullanicilar.ItemHeight = 30;
+            this.tvwKullanicilar.Location = new System.Drawing.Point(1011, 55);
+            this.tvwKullanicilar.Name = "tvwKullanicilar";
+            treeNode2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            treeNode2.ForeColor = System.Drawing.Color.Black;
+            treeNode2.Name = "yoneticiler";
+            treeNode2.Text = "Yöneticiler";
+            treeNode3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            treeNode3.ForeColor = System.Drawing.Color.Black;
+            treeNode3.Name = "kullanicilar";
+            treeNode3.Text = "Kullanıcılar";
+            this.tvwKullanicilar.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode2,
+            treeNode3});
+            this.tvwKullanicilar.ShowLines = false;
+            this.tvwKullanicilar.ShowPlusMinus = false;
+            this.tvwKullanicilar.Size = new System.Drawing.Size(251, 592);
+            this.tvwKullanicilar.TabIndex = 91;
+            this.tvwKullanicilar.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwKullanicilar_BeforeCollapse);
+            this.tvwKullanicilar.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvwKullanicilar_MouseDoubleClick);
+            // 
+            // rtxMesajim
+            // 
+            this.rtxMesajim.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.rtxMesajim.Location = new System.Drawing.Point(252, 572);
+            this.rtxMesajim.Name = "rtxMesajim";
+            this.rtxMesajim.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.rtxMesajim.Size = new System.Drawing.Size(759, 75);
+            this.rtxMesajim.TabIndex = 89;
+            this.rtxMesajim.Text = "";
+            this.rtxMesajim.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.rtxMesajim_KeyPress);
+            // 
+            // tabAna
+            // 
+            this.tabAna.Controls.Add(this.tpG);
+            this.tabAna.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabAna.Location = new System.Drawing.Point(252, 55);
+            this.tabAna.Name = "tabAna";
+            this.tabAna.SelectedIndex = 0;
+            this.tabAna.Size = new System.Drawing.Size(759, 517);
+            this.tabAna.TabIndex = 90;
+            // 
+            // tpG
+            // 
+            this.tpG.Controls.Add(this.rtxG);
+            this.tpG.Location = new System.Drawing.Point(4, 25);
+            this.tpG.Name = "tpG";
+            this.tpG.Padding = new System.Windows.Forms.Padding(3);
+            this.tpG.Size = new System.Drawing.Size(751, 488);
+            this.tpG.TabIndex = 0;
+            this.tpG.Text = "Genel Sohbet";
+            // 
+            // rtxG
+            // 
+            this.rtxG.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtxG.Location = new System.Drawing.Point(3, 3);
+            this.rtxG.Name = "rtxG";
+            this.rtxG.ReadOnly = true;
+            this.rtxG.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
+            this.rtxG.Size = new System.Drawing.Size(745, 482);
+            this.rtxG.TabIndex = 4;
+            this.rtxG.Text = "";
             // 
             // toolStripButton1
             // 
@@ -290,11 +360,6 @@
             this.tsbKullaniciListesi.Size = new System.Drawing.Size(133, 24);
             this.tsbKullaniciListesi.Text = "Kullanıcı Listesi";
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
-            // 
             // tsbKanalOlustur
             // 
             this.tsbKanalOlustur.Image = ((System.Drawing.Image)(resources.GetObject("tsbKanalOlustur.Image")));
@@ -304,57 +369,21 @@
             this.tsbKanalOlustur.Text = "Kanal Oluştur";
             this.tsbKanalOlustur.Click += new System.EventHandler(this.tsbKanalOlustur_Click);
             // 
-            // lstKullanicilar
+            // tsmiKullaniciAdiRengi
             // 
-            this.lstKullanicilar.ContextMenuStrip = this.cmsKullanicilar;
-            this.lstKullanicilar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lstKullanicilar.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.lstKullanicilar.FormattingEnabled = true;
-            this.lstKullanicilar.ItemHeight = 25;
-            this.lstKullanicilar.Location = new System.Drawing.Point(1034, 55);
-            this.lstKullanicilar.Name = "lstKullanicilar";
-            this.lstKullanicilar.Size = new System.Drawing.Size(228, 592);
-            this.lstKullanicilar.TabIndex = 5;
-            // 
-            // cmsKullanicilar
-            // 
-            this.cmsKullanicilar.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.cmsKullanicilar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mesajGönderToolStripMenuItem});
-            this.cmsKullanicilar.Name = "cmsKullanicilar";
-            this.cmsKullanicilar.Size = new System.Drawing.Size(171, 28);
-            // 
-            // mesajGönderToolStripMenuItem
-            // 
-            this.mesajGönderToolStripMenuItem.Name = "mesajGönderToolStripMenuItem";
-            this.mesajGönderToolStripMenuItem.Size = new System.Drawing.Size(170, 24);
-            this.mesajGönderToolStripMenuItem.Text = "Mesaj Gönder";
-            this.mesajGönderToolStripMenuItem.Click += new System.EventHandler(this.mesajGonderToolStripMenuItem_Click);
-            // 
-            // imgSayilar
-            // 
-            this.imgSayilar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgSayilar.ImageStream")));
-            this.imgSayilar.TransparentColor = System.Drawing.Color.Transparent;
-            this.imgSayilar.Images.SetKeyName(0, "1.png");
-            // 
-            // imgOdalar
-            // 
-            this.imgOdalar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgOdalar.ImageStream")));
-            this.imgOdalar.TransparentColor = System.Drawing.Color.Transparent;
-            this.imgOdalar.Images.SetKeyName(0, "varsayilan.png");
-            this.imgOdalar.Images.SetKeyName(1, "oda24.png");
-            this.imgOdalar.Images.SetKeyName(2, "kullanici.png");
-            this.imgOdalar.Images.SetKeyName(3, "kilit.png");
+            this.tsmiKullaniciAdiRengi.Name = "tsmiKullaniciAdiRengi";
+            this.tsmiKullaniciAdiRengi.Size = new System.Drawing.Size(224, 26);
+            this.tsmiKullaniciAdiRengi.Text = "Kullanıcı Adı Rengi";
             // 
             // frmAna
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1262, 673);
-            this.Controls.Add(this.rtxMesajim);
             this.Controls.Add(this.tabAna);
+            this.Controls.Add(this.rtxMesajim);
+            this.Controls.Add(this.tvwKullanicilar);
             this.Controls.Add(this.tvwOdalar);
-            this.Controls.Add(this.lstKullanicilar);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.ssrBilgi);
             this.Controls.Add(this.menuStrip1);
@@ -371,11 +400,11 @@
             this.menuStrip1.PerformLayout();
             this.ssrBilgi.ResumeLayout(false);
             this.ssrBilgi.PerformLayout();
-            this.tabAna.ResumeLayout(false);
-            this.tpOlaylar.ResumeLayout(false);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.cmsKullanicilar.ResumeLayout(false);
+            this.tabAna.ResumeLayout(false);
+            this.tpG.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -385,13 +414,12 @@
 
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem bağlantıToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem bağlanToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem bağlantıyıKesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsmiBaglan;
+        private System.Windows.Forms.ToolStripMenuItem tsmiBaglantiyiKes;
         private System.Windows.Forms.ToolStripMenuItem ayarlarToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem yardımToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem hakkındaToolStripMenuItem;
         private System.Windows.Forms.StatusStrip ssrBilgi;
-        private System.Windows.Forms.ToolStripMenuItem SunucuAyarlarıToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tümAyarlarToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem güncellemeleriDenetleToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel tsslPing;
@@ -399,12 +427,7 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
-        private System.Windows.Forms.TabControl tabAna;
-        private System.Windows.Forms.TabPage tpOlaylar;
-        private System.Windows.Forms.RichTextBox rtxMesajim;
-        private System.Windows.Forms.RichTextBox rtxMesajlar;
         private System.Windows.Forms.TreeView tvwOdalar;
-        private System.Windows.Forms.ListBox lstKullanicilar;
         private System.Windows.Forms.ToolStripButton tsbKullaniciListesi;
         private System.Windows.Forms.ContextMenuStrip cmsKullanicilar;
         private System.Windows.Forms.ToolStripMenuItem mesajGönderToolStripMenuItem;
@@ -413,5 +436,13 @@
         private System.Windows.Forms.ToolStripButton tsbKanalOlustur;
         private System.Windows.Forms.ImageList imgOdalar;
         private System.Windows.Forms.ToolStripStatusLabel tsslSunucu;
+        private System.Windows.Forms.ToolStripMenuItem fontAyarlarıToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRenkAyarları;
+        private System.Windows.Forms.TreeView tvwKullanicilar;
+        private System.Windows.Forms.RichTextBox rtxMesajim;
+        private System.Windows.Forms.TabControl tabAna;
+        private System.Windows.Forms.TabPage tpG;
+        private System.Windows.Forms.RichTextBox rtxG;
+        private System.Windows.Forms.ToolStripMenuItem tsmiKullaniciAdiRengi;
     }
 }

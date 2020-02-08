@@ -9,36 +9,37 @@ namespace Heyyo_Sunucu
 {
     class Sunucu
     {
-        static Socket soket;
+        private static Socket soket;
         public static SortedList<string, Istemci> istemciListesi = new SortedList<string, Istemci>();
         public static SortedList<string, Oda> odaListesi = new SortedList<string, Oda>();
         public static List<IPAddress> engelliIpListesi = new List<IPAddress>();
 
         static void Main(string[] args)
         {
-            Thread threadSunucu = new Thread(() => ServerBaslat());
+            Thread threadSunucu = new Thread(ServerBaslat);
             threadSunucu.Start();
 
-            string komut = Console.ReadLine();
-            try
+            while (true)
             {
+                string komut = Console.ReadLine();
                 string[] par = komut.Split(' ');
 
                 switch (par[0])
                 {
+                    case "baslat":
+                        threadSunucu.Start();
+                        break;
                     case "ban":
                         kullaniciEngelle(par[1]);
                         istemciListesi[par[1]].soket.Close();
                         break;
-                    case "istemci":
-
+                    case "mesaj":
+                        kullanicilaraMesajGonder(komut);
+                        break;
                     default:
                         break;
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+
             }
         }
 
@@ -47,7 +48,7 @@ namespace Heyyo_Sunucu
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, 5361);
             Socket dinleyiciSoket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             dinleyiciSoket.Bind(iep);
-            dinleyiciSoket.Listen(5361);
+            dinleyiciSoket.Listen(256);
             Console.WriteLine("Server başlatıldı");
             Thread thread;
             while (true)
@@ -72,34 +73,39 @@ namespace Heyyo_Sunucu
             return true;
         }
 
-        static void kullaniciEngelle(string kullaniciAdi)
+        public static void kullaniciEngelle(string kullaniciAdi)
         {
             IPAddress eip = IPAddress.Parse(((IPEndPoint)istemciListesi[kullaniciAdi].soket.RemoteEndPoint).Address.ToString());
             engelliIpListesi.Add(eip);
             Console.WriteLine(eip + " adresi banlandı!");
         }
 
-        public static void tumKullanicilaraMesajGonder(string mesaj, params Socket[] istisnaSocketListesi) //çoklu parametre yapılabilir duruma göre
+        public static void kullanicilaraMesajGonder(string mesaj, params Istemci[] istisnaIstemciDizisi)
         {
-            byte[] byteMesaj = uzunlukBaytlariniEkle(stringToByte(mesaj));
-            foreach (var istemci in Sunucu.istemciListesi.Values)
+            List<Istemci> istisnaIstemciListesi = new List<Istemci>(istisnaIstemciDizisi);
+            byte[] byteMesaj = UzunlukBE(StringToByte(mesaj));
+            foreach (var istemci in istemciListesi.Values)
             {
-                Socket istemciSoketi = istemci.soket;
-
-                foreach (var istisnaSoket in istisnaSocketListesi)
-                {
-                    if (istemciSoketi == istisnaSoket)
-                    {
-                        continue;
-                    }
-                }
-
-                istemciSoketi.Send(byteMesaj, byteMesaj.Length, SocketFlags.None);
-                Console.WriteLine("Gönderildi -> " + istemciSoketi.RemoteEndPoint + " -> " + mesaj.Length + " boyutunda mesaj gönderildi.");
+                if (istisnaIstemciListesi.Contains(istemci)) { continue; }
+                istemci.soket.Send(byteMesaj, byteMesaj.Length, SocketFlags.None);
             }
         }
 
-        public static ushort byteToUShort(byte[] bytes)
+        public static void kullanicilaraMesajGonder(byte[] byteMesaj, params Istemci[] istisnaIstemciDizisi)
+        {
+            List<Istemci> istisnaIstemciListesi = new List<Istemci>(istisnaIstemciDizisi);
+            byte[] bytes = UzunlukBE(byteMesaj);
+            foreach (var istemci in istemciListesi.Values)
+            {
+                if (istisnaIstemciListesi.Contains(istemci)) { continue; }
+                istemci.soket.Send(bytes, bytes.Length, SocketFlags.None);
+            }
+        }
+
+        /// <summary>
+        /// 2 byte'ı ushort'a çevirir
+        /// </summary>
+        public static ushort ByteToUshort(byte[] bytes)
         {
             byte[] uByte = { bytes[0], bytes[1] };
             return BitConverter.ToUInt16(uByte, 0);
@@ -110,7 +116,10 @@ namespace Heyyo_Sunucu
             return Encoding.UTF8.GetString(byteDizisi);
         }
 
-        public static byte[] uzunlukBaytlariniEkle(byte[] byteDizisi)
+        /// <summary>
+        /// Dizinin başına dizinin uzunluğunu 2 byte olarak ekler
+        /// </summary>
+        public static byte[] UzunlukBE(byte[] byteDizisi)
         {
             ushort uzunluk = (ushort)byteDizisi.Length;
             byte[] uBytes = BitConverter.GetBytes(uzunluk);
@@ -122,12 +131,11 @@ namespace Heyyo_Sunucu
             return byteDizisi;
         }
 
-        public static byte[] stringToByte(string veri)
+        public static byte[] StringToByte(string veri)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(veri);
             return bytes;
         }
-
 
     }
 }

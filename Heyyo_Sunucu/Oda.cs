@@ -15,12 +15,12 @@ namespace Heyyo_Sunucu
 
             this.odaAdi = par[1];
             this.odaSifresi = par[2];
-
+            System.Console.WriteLine(odaAdi + " oda oluşturuldu");
             Sunucu.odaListesi.Add(odaAdi, this);
 
             sifreVar = odaSifresi != "" ? true : false;
             string sifreDurumu = odaSifresi != "" ? "sifreli" : "sifresiz";
-            Sunucu.tumKullanicilaraMesajGonder(par[0] + ":" + par[1] + ":" + sifreDurumu);
+            Sunucu.kullanicilaraMesajGonder(par[0] + ":" + par[1] + ":" + sifreDurumu);
         }
 
         public bool odayaKullaniciEkle(Istemci istemci, string girilenSifre)
@@ -29,7 +29,7 @@ namespace Heyyo_Sunucu
             {
                 if (istemci.bulunduguOda != null)
                 {
-                    Sunucu.tumKullanicilaraMesajGonder("odadanCikti:" + istemci.bulunduguOda.odaAdi + ":" + istemci.kullaniciAdi);
+                    Sunucu.kullanicilaraMesajGonder("odadanCikti:" + istemci.bulunduguOda.odaAdi + ":" + istemci.kullaniciAdi);
                     istemci.bulunduguOda.bagliIstemciler.Remove(istemci);
                 }
                 bagliIstemciler.Add(istemci);
@@ -45,6 +45,7 @@ namespace Heyyo_Sunucu
 
         public void odadanKullaniciCikar(Istemci istemci)
         {
+            istemci.bulunduguOda = null;
             bagliIstemciler.Remove(istemci);
         }
     }

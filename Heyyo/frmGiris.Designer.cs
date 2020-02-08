@@ -71,7 +71,7 @@
             this.txtIP.Name = "txtIP";
             this.txtIP.Size = new System.Drawing.Size(209, 22);
             this.txtIP.TabIndex = 0;
-            this.txtIP.Text = "78.168.55.247";
+            this.txtIP.Text = "127.0.0.1";
             // 
             // txtPort
             // 
@@ -87,7 +87,7 @@
             this.txtKullaniciAdi.Name = "txtKullaniciAdi";
             this.txtKullaniciAdi.Size = new System.Drawing.Size(312, 22);
             this.txtKullaniciAdi.TabIndex = 2;
-            this.txtKullaniciAdi.Text = "sukru";
+            this.txtKullaniciAdi.Text = "Şükrü Can";
             this.txtKullaniciAdi.TextChanged += new System.EventHandler(this.txtKullaniciAdi_TextChanged);
             // 
             // btnBaglan
@@ -129,7 +129,6 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bağlan";
-            this.Load += new System.EventHandler(this.frmGiris_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

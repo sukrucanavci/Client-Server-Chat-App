@@ -41,23 +41,11 @@ namespace Heyyo
                 frm.Baglan();
         }
 
-
-
-        private void frmGiris_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnVazgec_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void txtKullaniciAdi_TextChanged(object sender, EventArgs e)
         {
             string ka = txtKullaniciAdi.Text;
 
-            if (ka.Length < 3 || ka.Contains(":") || ka.Substring(0, 3).Contains(" "))
+            if (ka.Length < 3 || ka.Substring(0, 3).Contains(" "))
             {
                 btnBaglan.Enabled = false;
             }
@@ -65,6 +53,11 @@ namespace Heyyo
             {
                 btnBaglan.Enabled = true;
             }
+        }
+
+        private void btnVazgec_Click(object sender, EventArgs e)
+        {
+            this.Hide();
         }
     }
 }
