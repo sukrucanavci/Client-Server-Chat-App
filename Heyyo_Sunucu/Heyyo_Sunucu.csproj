@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="Istemci.cs" />
     <Compile Include="Oda.cs" />
     <Compile Include="Sunucu.cs" />

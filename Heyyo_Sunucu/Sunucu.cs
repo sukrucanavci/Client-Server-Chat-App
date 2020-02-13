@@ -34,9 +34,10 @@ namespace Heyyo_Sunucu
                         istemciListesi[par[1]].soket.Close();
                         break;
                     case "mesaj":
-                        kullanicilaraMesajGonder(komut);
+                        KullanicilaraMesajGonder((char)Istemci.komutlar.sunucumesaji + komut);
                         break;
                     default:
+                        Console.WriteLine("Geçersiz komut");
                         break;
                 }
 
@@ -80,10 +81,10 @@ namespace Heyyo_Sunucu
             Console.WriteLine(eip + " adresi banlandı!");
         }
 
-        public static void kullanicilaraMesajGonder(string mesaj, params Istemci[] istisnaIstemciDizisi)
+        public static void KullanicilaraMesajGonder(string mesaj, params Istemci[] istisnaIstemciDizisi)
         {
             List<Istemci> istisnaIstemciListesi = new List<Istemci>(istisnaIstemciDizisi);
-            byte[] byteMesaj = UzunlukBE(StringToByte(mesaj));
+            byte[] byteMesaj = UzunlukBE(Encoding.UTF8.GetBytes(mesaj));
             foreach (var istemci in istemciListesi.Values)
             {
                 if (istisnaIstemciListesi.Contains(istemci)) { continue; }
@@ -91,7 +92,7 @@ namespace Heyyo_Sunucu
             }
         }
 
-        public static void kullanicilaraMesajGonder(byte[] byteMesaj, params Istemci[] istisnaIstemciDizisi)
+        public static void KullanicilaraMesajGonder(byte[] byteMesaj, params Istemci[] istisnaIstemciDizisi)
         {
             List<Istemci> istisnaIstemciListesi = new List<Istemci>(istisnaIstemciDizisi);
             byte[] bytes = UzunlukBE(byteMesaj);
@@ -111,11 +112,6 @@ namespace Heyyo_Sunucu
             return BitConverter.ToUInt16(uByte, 0);
         }
 
-        public static string byteToString(byte[] byteDizisi)
-        {
-            return Encoding.UTF8.GetString(byteDizisi);
-        }
-
         /// <summary>
         /// Dizinin başına dizinin uzunluğunu 2 byte olarak ekler
         /// </summary>
@@ -129,12 +125,6 @@ namespace Heyyo_Sunucu
             kopyaByteDizisi.AddRange(byteDizisi);
             byteDizisi = kopyaByteDizisi.ToArray();
             return byteDizisi;
-        }
-
-        public static byte[] StringToByte(string veri)
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(veri);
-            return bytes;
         }
 
     }

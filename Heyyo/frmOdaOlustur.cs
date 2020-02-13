@@ -1,38 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Text;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Heyyo
 {
     public partial class frmOdaOlustur : Form
     {
-        public frmOdaOlustur(string olusturan)
+        public string odaAdi = null;
+        public string odaSifresi = null;
+
+        public frmOdaOlustur()
         {
             InitializeComponent();
-
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.MaximizeBox = false;
         }
-
-        public string komut;
 
         private void btnOdaOlustur_Click(object sender, EventArgs e)
         {
-            string odaAdi = txtOdaAdi.Text;
-            string sifre = txtOdaSifresi.Text;
-            komut = "odaEkle:" + odaAdi + ":" + sifre;
-            this.Close();
+            if (txtOdaAdi.TextLength < 3) { return; }
+            //if (odaAdi.Substring(0, 3).Contains(' ')) { return; }
+
+            odaAdi = txtOdaAdi.Text;
+            odaSifresi = txtOdaSifresi.Text;
+
+            txtOdaAdi.Clear();
+            txtOdaSifresi.Clear();
+
+            this.Hide();
         }
 
-        private void chkSifre_CheckedChanged(object sender, EventArgs e)
+        private void btnVazgec_Click(object sender, EventArgs e)
         {
-            if (!chkSifre.Checked)
-            {
-                txtOdaSifresi.Clear();
-            }
-            txtOdaSifresi.Enabled = chkSifre.Checked ? true : false ;
+            odaAdi = null;
+            odaSifresi = null;
+
+            this.Hide();
         }
     }
 }

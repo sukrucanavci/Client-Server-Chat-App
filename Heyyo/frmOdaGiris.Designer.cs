@@ -69,6 +69,7 @@
             this.btnVazgec.TabIndex = 7;
             this.btnVazgec.Text = "Vazgeç";
             this.btnVazgec.UseVisualStyleBackColor = true;
+            this.btnVazgec.Click += new System.EventHandler(this.btnVazgec_Click);
             // 
             // lblBilgi
             // 

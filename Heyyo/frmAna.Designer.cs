@@ -30,9 +30,9 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Ses Kanalları");
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAna));
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Yöneticiler");
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Kullanıcılar");
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAna));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.bağlantıToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiBaglan = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,6 +41,7 @@
             this.tümAyarlarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fontAyarlarıToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiRenkAyarları = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiKullaniciAdiRengi = new System.Windows.Forms.ToolStripMenuItem();
             this.yardımToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.güncellemeleriDenetleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hakkındaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,7 +51,11 @@
             this.tsslPing = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvwOdalar = new System.Windows.Forms.TreeView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.tsbKullaniciListesi = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbKanalOlustur = new System.Windows.Forms.ToolStripButton();
             this.cmsKullanicilar = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mesajGönderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imgSayilar = new System.Windows.Forms.ImageList(this.components);
@@ -60,11 +65,6 @@
             this.tabAna = new System.Windows.Forms.TabControl();
             this.tpG = new System.Windows.Forms.TabPage();
             this.rtxG = new System.Windows.Forms.RichTextBox();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-            this.tsbKullaniciListesi = new System.Windows.Forms.ToolStripButton();
-            this.tsbKanalOlustur = new System.Windows.Forms.ToolStripButton();
-            this.tsmiKullaniciAdiRengi = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.ssrBilgi.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -123,13 +123,13 @@
             // tümAyarlarToolStripMenuItem
             // 
             this.tümAyarlarToolStripMenuItem.Name = "tümAyarlarToolStripMenuItem";
-            this.tümAyarlarToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.tümAyarlarToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
             this.tümAyarlarToolStripMenuItem.Text = "Ses Ayarları";
             // 
             // fontAyarlarıToolStripMenuItem
             // 
             this.fontAyarlarıToolStripMenuItem.Name = "fontAyarlarıToolStripMenuItem";
-            this.fontAyarlarıToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.fontAyarlarıToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
             this.fontAyarlarıToolStripMenuItem.Text = "Font Ayarları";
             // 
             // tsmiRenkAyarları
@@ -137,8 +137,14 @@
             this.tsmiRenkAyarları.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiKullaniciAdiRengi});
             this.tsmiRenkAyarları.Name = "tsmiRenkAyarları";
-            this.tsmiRenkAyarları.Size = new System.Drawing.Size(224, 26);
+            this.tsmiRenkAyarları.Size = new System.Drawing.Size(179, 26);
             this.tsmiRenkAyarları.Text = "Renk Ayarları";
+            // 
+            // tsmiKullaniciAdiRengi
+            // 
+            this.tsmiKullaniciAdiRengi.Name = "tsmiKullaniciAdiRengi";
+            this.tsmiKullaniciAdiRengi.Size = new System.Drawing.Size(217, 26);
+            this.tsmiKullaniciAdiRengi.Text = "Kullanıcı Adı Rengi";
             // 
             // yardımToolStripMenuItem
             // 
@@ -177,8 +183,8 @@
             // tsslSunucu
             // 
             this.tsslSunucu.Name = "tsslSunucu";
-            this.tsslSunucu.Size = new System.Drawing.Size(111, 20);
-            this.tsslSunucu.Text = "Sunucu bilgileri";
+            this.tsslSunucu.Size = new System.Drawing.Size(50, 20);
+            this.tsslSunucu.Text = "0.0.0.0";
             // 
             // tsslKullaniciAdi
             // 
@@ -208,7 +214,7 @@
             this.tvwOdalar.ShowLines = false;
             this.tvwOdalar.ShowPlusMinus = false;
             this.tvwOdalar.Size = new System.Drawing.Size(252, 592);
-            this.tvwOdalar.TabIndex = 87;
+            this.tvwOdalar.TabIndex = 1111;
             this.tvwOdalar.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwOdalar_BeforeCollapse);
             this.tvwOdalar.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.tvwOdalar_MouseDoubleClick);
             // 
@@ -228,10 +234,49 @@
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = global::Heyyo.Properties.Resources.iconfinder_volume_up_1608454;
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(29, 24);
+            this.toolStripButton1.Text = "toolStripButton1";
+            this.toolStripButton1.ToolTipText = "Hoparlör";
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton2.Image = global::Heyyo.Properties.Resources.iconfinder_microphone_1608550;
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(29, 24);
+            this.toolStripButton2.Text = "toolStripButton2";
+            this.toolStripButton2.ToolTipText = "Mikrofon";
+            // 
+            // tsbKullaniciListesi
+            // 
+            this.tsbKullaniciListesi.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsbKullaniciListesi.Image = ((System.Drawing.Image)(resources.GetObject("tsbKullaniciListesi.Image")));
+            this.tsbKullaniciListesi.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbKullaniciListesi.Name = "tsbKullaniciListesi";
+            this.tsbKullaniciListesi.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.tsbKullaniciListesi.Size = new System.Drawing.Size(133, 24);
+            this.tsbKullaniciListesi.Text = "Kullanıcı Listesi";
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
+            // 
+            // tsbKanalOlustur
+            // 
+            this.tsbKanalOlustur.Image = ((System.Drawing.Image)(resources.GetObject("tsbKanalOlustur.Image")));
+            this.tsbKanalOlustur.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbKanalOlustur.Name = "tsbKanalOlustur";
+            this.tsbKanalOlustur.Size = new System.Drawing.Size(121, 24);
+            this.tsbKanalOlustur.Text = "Kanal Oluştur";
+            this.tsbKanalOlustur.Click += new System.EventHandler(this.tsbKanalOlustur_Click);
             // 
             // cmsKullanicilar
             // 
@@ -321,59 +366,15 @@
             // 
             // rtxG
             // 
+            this.rtxG.BackColor = System.Drawing.Color.White;
             this.rtxG.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtxG.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.rtxG.Location = new System.Drawing.Point(3, 3);
             this.rtxG.Name = "rtxG";
-            this.rtxG.ReadOnly = true;
             this.rtxG.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
             this.rtxG.Size = new System.Drawing.Size(745, 482);
             this.rtxG.TabIndex = 4;
             this.rtxG.Text = "";
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = global::Heyyo.Properties.Resources.iconfinder_volume_up_1608454;
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(29, 24);
-            this.toolStripButton1.Text = "toolStripButton1";
-            this.toolStripButton1.ToolTipText = "Hoparlör";
-            // 
-            // toolStripButton2
-            // 
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::Heyyo.Properties.Resources.iconfinder_microphone_1608550;
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(29, 24);
-            this.toolStripButton2.Text = "toolStripButton2";
-            this.toolStripButton2.ToolTipText = "Mikrofon";
-            // 
-            // tsbKullaniciListesi
-            // 
-            this.tsbKullaniciListesi.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsbKullaniciListesi.Image = ((System.Drawing.Image)(resources.GetObject("tsbKullaniciListesi.Image")));
-            this.tsbKullaniciListesi.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbKullaniciListesi.Name = "tsbKullaniciListesi";
-            this.tsbKullaniciListesi.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.tsbKullaniciListesi.Size = new System.Drawing.Size(133, 24);
-            this.tsbKullaniciListesi.Text = "Kullanıcı Listesi";
-            // 
-            // tsbKanalOlustur
-            // 
-            this.tsbKanalOlustur.Image = ((System.Drawing.Image)(resources.GetObject("tsbKanalOlustur.Image")));
-            this.tsbKanalOlustur.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbKanalOlustur.Name = "tsbKanalOlustur";
-            this.tsbKanalOlustur.Size = new System.Drawing.Size(121, 24);
-            this.tsbKanalOlustur.Text = "Kanal Oluştur";
-            this.tsbKanalOlustur.Click += new System.EventHandler(this.tsbKanalOlustur_Click);
-            // 
-            // tsmiKullaniciAdiRengi
-            // 
-            this.tsmiKullaniciAdiRengi.Name = "tsmiKullaniciAdiRengi";
-            this.tsmiKullaniciAdiRengi.Size = new System.Drawing.Size(224, 26);
-            this.tsmiKullaniciAdiRengi.Text = "Kullanıcı Adı Rengi";
             // 
             // frmAna
             // 

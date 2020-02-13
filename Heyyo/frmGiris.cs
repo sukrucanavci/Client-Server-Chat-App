@@ -16,6 +16,8 @@ namespace Heyyo
         public frmGiris()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.MaximizeBox = false;
         }
 
         public string kullaniciAdi;
